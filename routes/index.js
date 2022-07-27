@@ -1,33 +1,35 @@
+
 var express = require('express');
 const fetch = require('node-fetch');
 const https = require('https');
 const FormData = require('form-data');
-
+const WebflowCMS = require('webflow-cms');
 const httpsAgent = new https.Agent({
     rejectUnauthorized: false,
 });
 
 var router = express.Router();
+const getToken = async (fullUrl, headers, httpsAgent)=>{
+    const response = await fetch(`https://service.mopin.co.kr/api/webflow/token/?site_url=${fullUrl}&format=json`, {headers: headers, agent: httpsAgent, method: 'GET'});
+    const responseData = await response.json();
+    return responseData[0];
+}
 
 /* GET home page. */
 router.get('/*', async function (req, res, next) {
-    const url = req.path.slice(1);
+    // const url = req.path.slice(1);
     const headers = req.headers;
+    const fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
     try {
-        headers["origin"] = new URL(url).origin;
-        headers["host"] = new URL(url).host;
+        headers["origin"] = new URL("https://service.mopin.co.kr").origin;
+        headers["host"] = new URL("https://service.mopin.co.kr").host;
+        headers["content-type"] = "application/json";
 
-        const response = await fetch(url, {headers: headers, agent: httpsAgent, method: 'GET'});
-        const responseHeaders = JSON.parse(JSON.stringify(response.headers.raw()));
-        const responseData = await response.text();
-        for (key in responseHeaders) {
-            if (key != "content-encoding") {
-                res.set(key, responseHeaders[key].join(";"));
-            }
-        }
-        // res.set("content-type","application/json");
-        const result = {data: responseData, headers: responseHeaders};
-        res.json(result);
+        const tokenInfo = await getToken(fullUrl,headers,httpsAgent);
+        console.log(tokenInfo);
+
+        res.set("content-type","application/json");
+        res.json("");
     } catch (e) {
         res.status(404).send(e.stack);
     }
