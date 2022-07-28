@@ -20,8 +20,9 @@ const getToken = async (fullUrl, headers, httpsAgent)=>{
 router.get('/sites', async function (req, res, next) {
     // const url = req.path.slice(1);
     const headers = req.headers;
-    const fullUrl = req.protocol + '://' + req.get('host');
     try {
+        const fullUrl = req.query.url;
+
         headers["origin"] = new URL("https://service.mopin.co.kr").origin;
         headers["host"] = new URL("https://service.mopin.co.kr").host;
         headers["content-type"] = "application/json";
@@ -40,8 +41,9 @@ router.get('/sites', async function (req, res, next) {
 router.get('/collection', async function (req, res, next) {
     // const url = req.path.slice(1);
     const headers = req.headers;
-    const fullUrl = req.protocol + '://' + req.get('host');
     try {
+        const fullUrl = req.query.url;
+
         headers["origin"] = new URL("https://service.mopin.co.kr").origin;
         headers["host"] = new URL("https://service.mopin.co.kr").host;
         headers["content-type"] = "application/json";
@@ -64,8 +66,9 @@ router.get('/collection', async function (req, res, next) {
 router.get('/item', async function (req, res, next) {
     // const url = req.path.slice(1);
     const headers = req.headers;
-    const fullUrl = req.protocol + '://' + req.get('host');
     try {
+        const fullUrl = req.query.url;
+
         headers["origin"] = new URL("https://service.mopin.co.kr").origin;
         headers["host"] = new URL("https://service.mopin.co.kr").host;
         headers["content-type"] = "application/json";
@@ -106,8 +109,9 @@ function jsonToQueryString(json) {
 
 router.put('/item', async function (req, res, next) {
     const headers = req.headers;
-    const fullUrl = req.protocol + '://' + req.get('host');
     try {
+        const fullUrl = req.query.url;
+
         headers["origin"] = new URL("https://service.mopin.co.kr").origin;
         headers["host"] = new URL("https://service.mopin.co.kr").host;
         headers["content-type"] = "application/json";
