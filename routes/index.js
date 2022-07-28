@@ -4,6 +4,7 @@ const fetch = require('node-fetch');
 const https = require('https');
 const FormData = require('form-data');
 const WebflowCMS = require('webflow-cms');
+const urlencode = require('urlencode');
 const httpsAgent = new https.Agent({
     rejectUnauthorized: false,
 });
@@ -16,24 +17,78 @@ const getToken = async (fullUrl, headers, httpsAgent)=>{
 }
 
 /* GET home page. */
-router.get('/*', async function (req, res, next) {
+router.get('/sites', async function (req, res, next) {
     // const url = req.path.slice(1);
     const headers = req.headers;
-    const fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
+    const fullUrl = req.protocol + '://' + req.get('host');
     try {
         headers["origin"] = new URL("https://service.mopin.co.kr").origin;
         headers["host"] = new URL("https://service.mopin.co.kr").host;
         headers["content-type"] = "application/json";
 
         const tokenInfo = await getToken(fullUrl,headers,httpsAgent);
-        console.log(tokenInfo);
+        const webflowCMS = new WebflowCMS.default(tokenInfo.token);
+        const sites = await webflowCMS.getSites();
 
         res.set("content-type","application/json");
-        res.json("");
+        res.json(sites);
     } catch (e) {
         res.status(404).send(e.stack);
     }
+});
 
+router.get('/collection', async function (req, res, next) {
+    // const url = req.path.slice(1);
+    const headers = req.headers;
+    const fullUrl = req.protocol + '://' + req.get('host');
+    try {
+        headers["origin"] = new URL("https://service.mopin.co.kr").origin;
+        headers["host"] = new URL("https://service.mopin.co.kr").host;
+        headers["content-type"] = "application/json";
+
+        const tokenInfo = await getToken(fullUrl,headers,httpsAgent);
+        const webflowCMS = new WebflowCMS.default(tokenInfo.token);
+        const collections = await webflowCMS.getCollections(req.query.siteId);
+        let ret = collections;
+        if(req.query.collectionName){
+            ret = await webflowCMS.getCollectionByName(collections, urlencode.decode(req.query.collectionName));
+        }
+
+        res.set("content-type","application/json");
+        res.json(ret);
+    } catch (e) {
+        res.status(400).send(e.stack);
+    }
+});
+
+router.get('/item', async function (req, res, next) {
+    // const url = req.path.slice(1);
+    const headers = req.headers;
+    const fullUrl = req.protocol + '://' + req.get('host');
+    try {
+        headers["origin"] = new URL("https://service.mopin.co.kr").origin;
+        headers["host"] = new URL("https://service.mopin.co.kr").host;
+        headers["content-type"] = "application/json";
+        const tokenInfo = await getToken(fullUrl,headers,httpsAgent);
+        const webflowCMS = new WebflowCMS.default(tokenInfo.token);
+        const collections = await webflowCMS.getCollections(req.query.siteId);
+        let ret = collections;
+
+        if(req.query.collectionName){
+            ret = await webflowCMS.getCollectionByName(collections, urlencode.decode(req.query.collectionName));
+            if(req.query.itemName){
+                ret = await webflowCMS.getItemByName(ret,urlencode.decode(req.query.itemName));
+            }
+            else{
+                ret = await webflowCMS.getItems(ret);
+            }
+        }
+        
+        res.set("content-type","application/json");
+        res.json(ret);
+    } catch (e) {
+        res.status(400).send(e.stack);
+    }
 });
 
 function getFormData(object) {
@@ -49,49 +104,26 @@ function jsonToQueryString(json) {
     }).join('&');
 }
 
-router.post('/*', async function (req, res, next) {
-    const url = req.path.slice(1);
+router.put('/item', async function (req, res, next) {
     const headers = req.headers;
+    const fullUrl = req.protocol + '://' + req.get('host');
     try {
-        headers["origin"] = new URL(url).origin;
-        headers["host"] = new URL(url).host;
+        headers["origin"] = new URL("https://service.mopin.co.kr").origin;
+        headers["host"] = new URL("https://service.mopin.co.kr").host;
+        headers["content-type"] = "application/json";
+        delete headers['content-length'];
+        const tokenInfo = await getToken(fullUrl,headers,httpsAgent);
+        const webflowCMS = new WebflowCMS.default(tokenInfo.token);
+
 
         let body = JSON.parse(JSON.stringify(req.body));
-
-        for (key in body.extraHeaders) {
-            headers[key] = body.extraHeaders[key];
-            if (body.extraHeaders[key] == "null") {
-                delete headers[key]
-            }
-        }
-        delete body.extraHeaders
-        //TODO: contentType 별로 body 바꿀 것!
-        if (headers['content-type'] == 'application/x-www-form-urlencoded') {
-            body = jsonToQueryString(body);
-        } else if (headers['content-type'] == 'application/json') {
-            body = JSON.stringify(body);
-        } else if (headers['content-type'] == 'multipart/form-data') {
-            body = getFormData(body);
-        }
-        const response = await fetch(url, {
-            headers: headers,
-            agent: httpsAgent,
-            method: 'POST',
-            body: body,
-        });
-
-        const responseHeaders = JSON.parse(JSON.stringify(response.headers.raw()));
-        const responseData = await response.text();
-        for (key in responseHeaders) {
-            if (key != "content-encoding") {
-                res.set(key, responseHeaders[key].join(";"));
-            }
-        }
-        // res.set("content-type","application/json");
-        const result = {data: responseData, headers: responseHeaders};
-        res.json(result);
+        let ret={};
+        ret = await webflowCMS.updateItem(urlencode.decode(req.query.itemId), urlencode.decode(req.query.collectionId),body);
+        res.set("content-type","application/json");
+        res.json(ret);
     } catch (e) {
-        res.status(404).send(e.stack);
+        res.status(400).send(e.stack);
     }
 });
+
 module.exports = router;

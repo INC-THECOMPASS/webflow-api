@@ -18,6 +18,7 @@
     "pug": "3.0.1",
     "request": "^2.88.2",
     "request-promise": "^4.2.6",
-    "webflow-cms": "1.1.2"
+    "urlencode": "^1.1.0",
+    "webflow-cms": "^1.2.7"
   }
 }
