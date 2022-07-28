@@ -28,11 +28,11 @@ router.get('/sites', async function (req, res, next) {
         headers["content-type"] = "application/json";
 
         const tokenInfo = await getToken(fullUrl,headers,httpsAgent);
-        const webflowCMS = new WebflowCMS.default(tokenInfo.token);
-        const sites = await webflowCMS.getSites();
+        // const webflowCMS = new WebflowCMS.default(tokenInfo.token);
+        // const sites = await webflowCMS.getSites();
 
         res.set("content-type","application/json");
-        res.json(sites);
+        res.json(tokenInfo);
     } catch (e) {
         res.status(404).send(e.stack);
     }
