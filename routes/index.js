@@ -86,7 +86,7 @@ router.get('/item', async function (req, res, next) {
                 ret = await webflowCMS.getItems(ret);
             }
         }
-        
+
         res.set("content-type","application/json");
         res.json(ret);
     } catch (e) {
@@ -129,5 +129,48 @@ router.put('/item', async function (req, res, next) {
         res.status(400).send(e.stack);
     }
 });
+router.post('/item', async function (req, res, next) {
+    const headers = req.headers;
+    try {
+        const fullUrl = req.query.url;
 
+        headers["origin"] = new URL("https://service.mopin.co.kr").origin;
+        headers["host"] = new URL("https://service.mopin.co.kr").host;
+        headers["content-type"] = "application/json";
+        delete headers['content-length'];
+        const tokenInfo = await getToken(fullUrl,headers,httpsAgent);
+        const webflowCMS = new WebflowCMS.default(tokenInfo.token);
+
+
+        let body = JSON.parse(JSON.stringify(req.body));
+        let ret={};
+        ret = await webflowCMS.createItem(urlencode.decode(req.query.itemId), urlencode.decode(req.query.collectionId),body);
+        res.set("content-type","application/json");
+        res.json(ret);
+    } catch (e) {
+        res.status(400).send(e.stack);
+    }
+});/*
+router.delete('/item', async function (req, res, next) {
+    const headers = req.headers;
+    try {
+        const fullUrl = req.query.url;
+
+        headers["origin"] = new URL("https://service.mopin.co.kr").origin;
+        headers["host"] = new URL("https://service.mopin.co.kr").host;
+        headers["content-type"] = "application/json";
+        delete headers['content-length'];
+        const tokenInfo = await getToken(fullUrl,headers,httpsAgent);
+        const webflowCMS = new WebflowCMS.default(tokenInfo.token);
+
+
+        let body = JSON.parse(JSON.stringify(req.body));
+        let ret={};
+        ret = await webflowCMS.updateItem(urlencode.decode(req.query.itemId), urlencode.decode(req.query.collectionId),body);
+        res.set("content-type","application/json");
+        res.json(ret);
+    } catch (e) {
+        res.status(400).send(e.stack);
+    }
+});*/
 module.exports = router;
