@@ -143,7 +143,7 @@ router.post('/item', async function (req, res, next) {
 
         let body = JSON.parse(JSON.stringify(req.body));
         let ret={};
-        ret = await webflowCMS.createItem(urlencode.decode(req.query.itemId), urlencode.decode(req.query.collectionId),body);
+        ret = await webflowCMS.createItem(urlencode.decode(req.query.collectionId),body);
         res.set("content-type","application/json");
         res.json(ret);
     } catch (e) {
