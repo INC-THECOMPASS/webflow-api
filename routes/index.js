@@ -76,7 +76,7 @@ router.get('/item', async function (req, res, next) {
         const webflowCMS = new WebflowCMS.default(tokenInfo.token);
         const collections = await webflowCMS.getCollections(req.query.siteId);
         let ret = collections;
-
+        console.log(req.query)
         if(req.query.collectionName){
             ret = await webflowCMS.getCollectionByName(collections, urlencode.decode(req.query.collectionName));
             if(req.query.itemName){
