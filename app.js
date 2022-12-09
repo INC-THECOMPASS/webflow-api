@@ -12,7 +12,7 @@ var app = express();
 
 // view engine setup
 // app.set('views', path.join(__dirname, 'views'));
-app.set('port', '3456');
+app.set('port', 3456);
 
 app.use(cors());
 app.use(timeout('100s'));
