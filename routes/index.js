@@ -11,7 +11,7 @@ const httpsAgent = new https.Agent({
 
 var router = express.Router();
 const getToken = async (fullUrl, headers, httpsAgent)=>{
-    const response = await fetch(`https://service.mopin.co.kr/api/webflow/token/?site_url=${fullUrl}&format=json`, {headers: headers, agent: httpsAgent, method: 'GET'});
+    const response = await fetch(`https://service.ucut.in/api/webflow/token/?site_url=${fullUrl}&format=json`, {headers: headers, agent: httpsAgent, method: 'GET'});
     const responseData = await response.json();
     return responseData[0];
 }
@@ -23,8 +23,8 @@ router.get('/sites', async function (req, res, next) {
     try {
         const fullUrl = req.query.url;
 
-        headers["origin"] = new URL("https://service.mopin.co.kr").origin;
-        headers["host"] = new URL("https://service.mopin.co.kr").host;
+        headers["origin"] = new URL("https://service.ucut.in").origin;
+        headers["host"] = new URL("https://service.ucut.in").host;
         headers["content-type"] = "application/json";
 
         const tokenInfo = await getToken(fullUrl,headers,httpsAgent);
@@ -44,8 +44,8 @@ router.get('/collection', async function (req, res, next) {
     try {
         const fullUrl = req.query.url;
 
-        headers["origin"] = new URL("https://service.mopin.co.kr").origin;
-        headers["host"] = new URL("https://service.mopin.co.kr").host;
+        headers["origin"] = new URL("https://service.ucut.in").origin;
+        headers["host"] = new URL("https://service.ucut.in").host;
         headers["content-type"] = "application/json";
 
         const tokenInfo = await getToken(fullUrl,headers,httpsAgent);
@@ -69,8 +69,8 @@ router.get('/item', async function (req, res, next) {
     try {
         const fullUrl = req.query.url;
 
-        headers["origin"] = new URL("https://service.mopin.co.kr").origin;
-        headers["host"] = new URL("https://service.mopin.co.kr").host;
+        headers["origin"] = new URL("https://service.ucut.in").origin;
+        headers["host"] = new URL("https://service.ucut.in").host;
         headers["content-type"] = "application/json";
         const tokenInfo = await getToken(fullUrl,headers,httpsAgent);
         const webflowCMS = new WebflowCMS.default(tokenInfo.token);
@@ -111,8 +111,8 @@ router.put('/item', async function (req, res, next) {
     try {
         const fullUrl = req.query.url;
 
-        headers["origin"] = new URL("https://service.mopin.co.kr").origin;
-        headers["host"] = new URL("https://service.mopin.co.kr").host;
+        headers["origin"] = new URL("https://service.ucut.in").origin;
+        headers["host"] = new URL("https://service.ucut.in").host;
         headers["content-type"] = "application/json";
         delete headers['content-length'];
         const tokenInfo = await getToken(fullUrl,headers,httpsAgent);
@@ -133,8 +133,8 @@ router.post('/item', async function (req, res, next) {
     try {
         const fullUrl = req.query.url;
 
-        headers["origin"] = new URL("https://service.mopin.co.kr").origin;
-        headers["host"] = new URL("https://service.mopin.co.kr").host;
+        headers["origin"] = new URL("https://service.ucut.in").origin;
+        headers["host"] = new URL("https://service.ucut.in").host;
         headers["content-type"] = "application/json";
         delete headers['content-length'];
         const tokenInfo = await getToken(fullUrl,headers,httpsAgent);
@@ -155,8 +155,8 @@ router.delete('/item', async function (req, res, next) {
     try {
         const fullUrl = req.query.url;
 
-        headers["origin"] = new URL("https://service.mopin.co.kr").origin;
-        headers["host"] = new URL("https://service.mopin.co.kr").host;
+        headers["origin"] = new URL("https://service.ucut.in").origin;
+        headers["host"] = new URL("https://service.ucut.in").host;
         headers["content-type"] = "application/json";
         delete headers['content-length'];
         const tokenInfo = await getToken(fullUrl,headers,httpsAgent);
