@@ -1,6 +1,5 @@
 
 var express = require('express');
-const fetch = require('node-fetch');
 const https = require('https');
 const FormData = require('form-data');
 const urlencode = require('urlencode');
