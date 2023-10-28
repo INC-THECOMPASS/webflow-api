@@ -19,6 +19,7 @@
     "request": "^2.88.2",
     "request-promise": "^4.2.6",
     "urlencode": "^1.1.0",
-    "webflow-cms": "^1.2.7"
+    "webflow-cms": "^1.2.7",
+    "webflow-api": "^0.8.0"
   }
 }

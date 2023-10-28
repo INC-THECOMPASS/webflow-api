@@ -3,7 +3,6 @@ var express = require('express');
 const fetch = require('node-fetch');
 const https = require('https');
 const FormData = require('form-data');
-const WebflowCMS = require('webflow-cms');
 const urlencode = require('urlencode');
 const httpsAgent = new https.Agent({
     rejectUnauthorized: false,
@@ -15,6 +14,67 @@ const getToken = async (fullUrl, headers, httpsAgent)=>{
     const responseData = await response.json();
     return responseData[0];
 }
+const Webflow = require("webflow-api");
+const fetch = require('node-fetch');
+
+class WebflowCMS {
+    constructor(token) {
+        this.webflow = new Webflow({
+            token: token
+        })
+        this.token = token
+    }
+
+    async getSites() {
+        return (await this.webflow.info()).sites;
+    }
+
+    async getCollections(siteId) {
+        return await this.webflow.collections({siteId: siteId});
+    }
+
+    async getCollectionByName(collections, name) {
+        return collections.find((collection) => {
+            return collection.name == name
+        })
+    }
+
+    async getItems(collection) {
+        let offset = 0;
+        let count = 100;
+        let ret = []
+        while (count == 100) {
+            const temp = await collection.items({offset:offset})
+            offset += temp.count
+            count = temp.count
+            ret = ret.concat(temp.items)
+        }
+        return ret
+    }
+
+    async getItemByName(collection, name) {
+        return (await this.getItems(collection)).find((item) => {
+            return item.name == name
+        })
+    }
+
+    async updateItem(itemId, collectionId, data) {
+        return await this.webflow.updateItem({
+            itemId: itemId,
+            collectionId: collectionId,
+            fields: data
+        }, {live: true});
+    }
+
+    async createItem(collectionId, data) {
+        return await this.webflow.createItem({
+            collectionId: collectionId,
+            fields: data
+        }, {live: true})
+    }
+}
+
+
 
 /* GET home page. */
 router.get('/sites', async function (req, res, next) {
@@ -81,6 +141,7 @@ router.get('/item', async function (req, res, next) {
             ret = await webflowCMS.getCollectionByName(collections, urlencode.decode(req.query.collectionName));
             if(req.query.itemName){
                 ret = await webflowCMS.getItemByName(ret,urlencode.decode(req.query.itemName));
+                console.log(ret,urlencode.decode(req.query.itemName))
             }
             else{
                 ret = await webflowCMS.getItems(ret);
@@ -143,7 +204,8 @@ router.post('/item', async function (req, res, next) {
 
         let body = JSON.parse(JSON.stringify(req.body));
         let ret={};
-        ret = await webflowCMS.createItem(urlencode.decode(req.query.collectionId),body);
+        //TODO: body 찍어보기
+        ret = await webflowCMS.createItem(urlencode.decode(req.query.collectionId), body);
         res.set("content-type","application/json");
         res.json(ret);
     } catch (e) {
