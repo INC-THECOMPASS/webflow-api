@@ -3,6 +3,9 @@ var express = require('express');
 const https = require('https');
 const FormData = require('form-data');
 const urlencode = require('urlencode');
+const Webflow = require("webflow-api");
+const fetch = require('node-fetch');
+
 const httpsAgent = new https.Agent({
     rejectUnauthorized: false,
 });
@@ -13,8 +16,6 @@ const getToken = async (fullUrl, headers, httpsAgent)=>{
     const responseData = await response.json();
     return responseData[0];
 }
-const Webflow = require("webflow-api");
-const fetch = require('node-fetch');
 
 class WebflowCMS {
     constructor(token) {
