@@ -103,6 +103,15 @@ router.get('/sites', async function (req, res, next) {
         res.status(404).send(e.stack);
     }
 });
+router.get('/health-check', async function (req, res, next) {
+    const headers = req.headers;
+
+    headers["origin"] = new URL("https://service.ucut.in").origin;
+    headers["host"] = new URL("https://service.ucut.in").host;
+
+    res.set("content-type", "application/json");
+    res.json({});
+})
 
 router.get('/collection', async function (req, res, next) {
     // const url = req.path.slice(1);
