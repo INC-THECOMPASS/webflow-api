@@ -1,4 +1,3 @@
-
 var express = require('express');
 const https = require('https');
 const FormData = require('form-data');
@@ -11,8 +10,12 @@ const httpsAgent = new https.Agent({
 });
 
 var router = express.Router();
-const getToken = async (fullUrl, headers, httpsAgent)=>{
-    const response = await fetch(`https://service.ucut.in/api/webflow/token/?site_url=${fullUrl}&format=json`, {headers: headers, agent: httpsAgent, method: 'GET'});
+const getToken = async (fullUrl, headers, httpsAgent) => {
+    const response = await fetch(`https://service.ucut.in/api/webflow/token/?site_url=${fullUrl}&format=json`, {
+        headers: headers,
+        agent: httpsAgent,
+        method: 'GET'
+    });
     const responseData = await response.json();
     return responseData[0];
 }
@@ -44,7 +47,7 @@ class WebflowCMS {
         let count = 100;
         let ret = []
         while (count == 100) {
-            const temp = await collection.items({offset:offset})
+            const temp = await collection.items({offset: offset})
             offset += temp.count
             count = temp.count
             ret = ret.concat(temp.items)
@@ -56,6 +59,10 @@ class WebflowCMS {
         return (await this.getItems(collection)).find((item) => {
             return item.name == name
         })
+    }
+
+    async getItemById(collection, itemId) {
+        return await this.webflow.getItem({'collection_id': collection._id, 'item_id': itemId})
     }
 
     async updateItem(itemId, collectionId, data) {
@@ -75,7 +82,6 @@ class WebflowCMS {
 }
 
 
-
 /* GET home page. */
 router.get('/sites', async function (req, res, next) {
     // const url = req.path.slice(1);
@@ -87,11 +93,11 @@ router.get('/sites', async function (req, res, next) {
         headers["host"] = new URL("https://service.ucut.in").host;
         headers["content-type"] = "application/json";
 
-        const tokenInfo = await getToken(fullUrl,headers,httpsAgent);
+        const tokenInfo = await getToken(fullUrl, headers, httpsAgent);
         const webflowCMS = new WebflowCMS(tokenInfo.token);
         const sites = await webflowCMS.getSites();
 
-        res.set("content-type","application/json");
+        res.set("content-type", "application/json");
         res.json(sites);
     } catch (e) {
         res.status(404).send(e.stack);
@@ -108,15 +114,15 @@ router.get('/collection', async function (req, res, next) {
         headers["host"] = new URL("https://service.ucut.in").host;
         headers["content-type"] = "application/json";
 
-        const tokenInfo = await getToken(fullUrl,headers,httpsAgent);
+        const tokenInfo = await getToken(fullUrl, headers, httpsAgent);
         const webflowCMS = new WebflowCMS(tokenInfo.token);
         const collections = await webflowCMS.getCollections(req.query.siteId);
         let ret = collections;
-        if(req.query.collectionName){
+        if (req.query.collectionName) {
             ret = await webflowCMS.getCollectionByName(collections, urlencode.decode(req.query.collectionName));
         }
 
-        res.set("content-type","application/json");
+        res.set("content-type", "application/json");
         res.json(ret);
     } catch (e) {
         res.status(400).send(e.stack);
@@ -132,23 +138,25 @@ router.get('/item', async function (req, res, next) {
         headers["origin"] = new URL("https://service.ucut.in").origin;
         headers["host"] = new URL("https://service.ucut.in").host;
         headers["content-type"] = "application/json";
-        const tokenInfo = await getToken(fullUrl,headers,httpsAgent);
+        const tokenInfo = await getToken(fullUrl, headers, httpsAgent);
         const webflowCMS = new WebflowCMS(tokenInfo.token);
         const collections = await webflowCMS.getCollections(req.query.siteId);
         let ret = collections;
         console.log(req.query)
-        if(req.query.collectionName){
+        if (req.query.collectionName) {
             ret = await webflowCMS.getCollectionByName(collections, urlencode.decode(req.query.collectionName));
-            if(req.query.itemName){
-                ret = await webflowCMS.getItemByName(ret,urlencode.decode(req.query.itemName));
-                console.log(ret,urlencode.decode(req.query.itemName))
-            }
-            else{
+            if (req.query.itemName) {
+                ret = await webflowCMS.getItemByName(ret, urlencode.decode(req.query.itemName));
+                console.log(ret, urlencode.decode(req.query.itemName))
+            } else if (req.query.itemId) {
+                ret = await webflowCMS.getItemById(ret, req.query.itemId);
+                console.log(ret, urlencode.decode(req.query.itemName))
+            } else {
                 ret = await webflowCMS.getItems(ret);
             }
         }
 
-        res.set("content-type","application/json");
+        res.set("content-type", "application/json");
         res.json(ret);
     } catch (e) {
         res.status(400).send(e.stack);
@@ -167,6 +175,7 @@ function jsonToQueryString(json) {
             encodeURIComponent(json[key]);
     }).join('&');
 }
+
 router.put('/item', async function (req, res, next) {
     const headers = req.headers;
     try {
@@ -176,14 +185,14 @@ router.put('/item', async function (req, res, next) {
         headers["host"] = new URL("https://service.ucut.in").host;
         headers["content-type"] = "application/json";
         delete headers['content-length'];
-        const tokenInfo = await getToken(fullUrl,headers,httpsAgent);
+        const tokenInfo = await getToken(fullUrl, headers, httpsAgent);
         const webflowCMS = new WebflowCMS(tokenInfo.token);
 
 
         let body = JSON.parse(JSON.stringify(req.body));
-        let ret={};
-        ret = await webflowCMS.updateItem(urlencode.decode(req.query.itemId), urlencode.decode(req.query.collectionId),body);
-        res.set("content-type","application/json");
+        let ret = {};
+        ret = await webflowCMS.updateItem(urlencode.decode(req.query.itemId), urlencode.decode(req.query.collectionId), body);
+        res.set("content-type", "application/json");
         res.json(ret);
     } catch (e) {
         res.status(400).send(e.stack);
@@ -198,15 +207,15 @@ router.post('/item', async function (req, res, next) {
         headers["host"] = new URL("https://service.ucut.in").host;
         headers["content-type"] = "application/json";
         delete headers['content-length'];
-        const tokenInfo = await getToken(fullUrl,headers,httpsAgent);
+        const tokenInfo = await getToken(fullUrl, headers, httpsAgent);
         const webflowCMS = new WebflowCMS(tokenInfo.token);
 
 
         let body = JSON.parse(JSON.stringify(req.body));
-        let ret={};
+        let ret = {};
         //TODO: body 찍어보기
         ret = await webflowCMS.createItem(urlencode.decode(req.query.collectionId), body);
-        res.set("content-type","application/json");
+        res.set("content-type", "application/json");
         res.json(ret);
     } catch (e) {
         res.status(400).send(e.stack);
