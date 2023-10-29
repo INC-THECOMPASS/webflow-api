@@ -62,7 +62,7 @@ class WebflowCMS {
     }
 
     async getItemById(collection, itemId) {
-        return await this.webflow.getItem({'collection_id': collection._id, 'item_id': itemId})
+        return await this.webflow.item({'collection_id': collection._id, 'item_id': itemId})
     }
 
     async updateItem(itemId, collectionId, data) {
